@@ -35,6 +35,7 @@ jobs:
 
       - name: Build EXE
         shell: cmd
+        working-directory: ${{ github.workspace }}
         run: build_windows.bat
 
       - name: Upload EXE artifact
