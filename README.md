@@ -74,10 +74,10 @@ ALLOW_UNSUPPORTED_ARM_WINE=1 ./build_exe_in_docker.sh
 Шаги:
 
 ```bat
-python -m venv .venv
-.venv\Scripts\activate
 build_windows.bat
 ```
+
+Скрипт сам создаёт `.venv`, ставит зависимости и собирает `dist\AudioToText.exe`, поэтому отдельная активация окружения не нужна.
 
 Если команда `pyinstaller` не находится, это уже учтено: сборка запускается через `python -m PyInstaller`, поэтому отдельная запись в `PATH` не нужна.
 
