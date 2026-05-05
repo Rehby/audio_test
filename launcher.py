@@ -39,39 +39,59 @@ def main() -> int:
         print(f"Error: app.py not found at {app_path!s}")
         return 2
 
-    cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true", "--server.port", "8501", "--server.address", "127.0.0.1"]
-
-    proc = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1,
-    )
-
-    output_buffer: list[str] = []
-    if proc.stdout:
-        t = threading.Thread(target=stream_reader, args=(proc.stdout, output_buffer), daemon=True)
-        t.start()
-
+    # Prefer running Streamlit programmatically when possible (works inside a PyInstaller bundle)
     host = "127.0.0.1"
     port = 8501
 
-    started = wait_for_port(host, port, timeout=60)
-    if started:
-        url = f"http://{host}:{port}"
+    try:
+        # Try the newer import path first
         try:
-            webbrowser.open(url)
+            from streamlit.web import cli as stcli
         except Exception:
-            pass
-        proc.wait()
-        return proc.returncode or 0
+            # Fallback for older Streamlit versions
+            import streamlit.cli as stcli
 
-    print("Streamlit did not start within timeout. Recent subprocess output:")
-    for line in output_buffer[-200:]:
-        print(line, end="")
-    proc.wait()
-    return proc.returncode or 1
+        # Replace sys.argv similar to running `streamlit run app.py ...`
+        sys_argv_backup = sys.argv[:]
+        sys.argv = ["streamlit", "run", str(app_path), "--server.headless", "true", "--server.port", str(port), "--server.address", host]
+        try:
+            rc = stcli.main()
+            return rc or 0
+        finally:
+            sys.argv = sys_argv_backup
+    except Exception:
+        # Fallback to subprocess if programmatic run fails
+        cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true", "--server.port", str(port), "--server.address", host]
+
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+
+        output_buffer: list[str] = []
+        if proc.stdout:
+            t = threading.Thread(target=stream_reader, args=(proc.stdout, output_buffer), daemon=True)
+            t.start()
+
+        # Give Streamlit more time to start (large models or cold-starts can be slow)
+        started = wait_for_port(host, port, timeout=120)
+        if started:
+            url = f"http://{host}:{port}"
+            try:
+                webbrowser.open(url)
+            except Exception:
+                pass
+            proc.wait()
+            return proc.returncode or 0
+
+        print("Streamlit did not start within timeout. Recent subprocess output:")
+        for line in output_buffer[-200:]:
+            print(line, end="")
+        proc.wait()
+        return proc.returncode or 1
 
 
 if __name__ == "__main__":
