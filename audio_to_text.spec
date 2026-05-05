@@ -1,16 +1,24 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-from PyInstaller.utils.hooks import collect_metadata
+try:
+    # Newer PyInstaller exposes a helper named `copy_metadata`.
+    from PyInstaller.utils.hooks import copy_metadata as collect_metadata
+except Exception:
+    try:
+        # Older versions may provide `collect_metadata` directly.
+        from PyInstaller.utils.hooks import collect_metadata
+    except Exception:
+        collect_metadata = None
 
 block_cipher = None
 
 # Collect package metadata so importlib.metadata.version() works at runtime
 datas = []
-try:
-    datas += collect_metadata('streamlit')
-except Exception:
-    # If collect_metadata fails at spec-eval time, fall back to an empty list
-    datas += []
+if collect_metadata is not None:
+    try:
+        datas += collect_metadata('streamlit')
+    except Exception:
+        datas += []
 
 a = Analysis(
     ['app.py'],
