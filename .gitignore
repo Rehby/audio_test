@@ -2,6 +2,8 @@
 __pycache__/
 *.pyc
 *.txt
+!requirements.txt
+!requirements-build.txt
 build/
 dist/
 models/
