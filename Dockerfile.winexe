@@ -1,0 +1,18 @@
+FROM cdrx/pyinstaller-windows:python3 AS builder
+
+WORKDIR /src
+
+COPY requirements.txt requirements-build.txt ./
+
+RUN python -m pip install --upgrade pip \
+    && python -m pip install -r requirements.txt -r requirements-build.txt
+
+COPY app.py audio_to_text.spec launcher.py preload_models.py transcriber.py ./
+
+RUN python preload_models.py
+RUN python -m PyInstaller --clean --noconfirm audio_to_text.spec
+
+
+FROM scratch AS export
+
+COPY --from=builder /src/dist/AudioToText.exe /AudioToText.exe

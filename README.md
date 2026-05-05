@@ -46,7 +46,30 @@ docker run --rm -p 8501:8501 \
 
 ## Windows EXE
 
-Сборка `AudioToText.exe` делается только на Windows, потому что PyInstaller не собирает Windows `.exe` из macOS.
+Есть два варианта сборки `AudioToText.exe`.
+
+### Вариант 1: через Docker на macOS или Linux
+
+Этот путь собирает Windows `.exe` внутри Docker-образа на базе Wine и PyInstaller.
+
+```bash
+chmod +x build_exe_in_docker.sh
+./build_exe_in_docker.sh
+```
+
+На выходе файл появится в `dist/AudioToText.exe`.
+
+Для этого нужен установленный Docker.
+
+На Apple Silicon путь через Docker по умолчанию отключён в [build_exe_in_docker.sh](build_exe_in_docker.sh): образ использует `linux/amd64` и Wine, поэтому на ARM-Mac сборка часто падает внутри `wineboot`. Надёжный вариант для `.exe` это GitHub Actions или Windows.
+
+Если всё равно хотите попробовать неподдерживаемый путь на ARM-Mac:
+
+```bash
+ALLOW_UNSUPPORTED_ARM_WINE=1 ./build_exe_in_docker.sh
+```
+
+### Вариант 2: напрямую на Windows
 
 Шаги:
 

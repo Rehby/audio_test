@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 *.txt
+build/
+dist/
+models/
+*.exe
