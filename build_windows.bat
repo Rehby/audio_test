@@ -1,35 +1,36 @@
 @echo off
-setlocal
+REM build_windows.bat — собирает dist\AudioToText.exe на Windows
+setlocal enabledelayedexpansion
 
-set "SCRIPT_DIR=%~dp0"
-set "VENV_DIR=%SCRIPT_DIR%.venv"
-set "PYTHON_EXE=%VENV_DIR%\Scripts\python.exe"
+REM 1) Создаём виртуальное окружение (.venv) если нужно и активируем
+if not exist .venv (
+    python -m venv .venv
+)
+call .venv\Scripts\activate
 
-cd /d "%SCRIPT_DIR%"
-if errorlevel 1 exit /b 1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install pyinstaller
 
-if not exist "%PYTHON_EXE%" (
-	echo Creating virtual environment in %VENV_DIR%
-	python -m venv "%VENV_DIR%"
-	if errorlevel 1 exit /b 1
+REM 2) (Опционально) предзагрузить модели в каталог models
+if exist preload_models.py (
+    python preload_models.py
+) else (
+    echo preload_models.py не найден — пропускаю предзагрузку моделей
 )
 
-"%PYTHON_EXE%" -m pip install --upgrade pip
-if errorlevel 1 exit /b 1
+REM 3) Собираем exe через PyInstaller, используя готовый spec-файл
+python -m PyInstaller --clean --noconfirm audio_to_text.spec
 
-"%PYTHON_EXE%" -m pip install -r "%SCRIPT_DIR%requirements.txt" -r "%SCRIPT_DIR%requirements-build.txt"
-if errorlevel 1 exit /b 1
-
-"%PYTHON_EXE%" "%SCRIPT_DIR%preload_models.py"
-if errorlevel 1 exit /b 1
-
-"%PYTHON_EXE%" -m PyInstaller --clean --noconfirm "%SCRIPT_DIR%audio_to_text.spec"
-if errorlevel 1 exit /b 1
-
-if not exist "%SCRIPT_DIR%dist\AudioToText.exe" (
-	echo Build finished but %SCRIPT_DIR%dist\AudioToText.exe was not created.
-	exit /b 1
+REM 4) Переносим итоговый exe в release\
+if not exist release (
+    mkdir release
+)
+if exist dist\AudioToText.exe (
+    move /Y dist\AudioToText.exe release\AudioToText.exe
+    echo Готово: release\AudioToText.exe
+) else (
+    echo Ошибка: dist\AudioToText.exe не найден. Проверьте вывод PyInstaller.
 )
 
-echo.
-echo Ready: %SCRIPT_DIR%dist\AudioToText.exe
+pause
