@@ -20,6 +20,9 @@ if collect_metadata is not None:
     except Exception:
         datas += []
 
+# Ensure the app script is included so `launcher.py` can run it at runtime
+datas += [('app.py', '.')]
+
 a = Analysis(
     ['launcher.py'],
     pathex=['.'],

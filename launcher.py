@@ -28,10 +28,15 @@ def stream_reader(pipe, buffer: list):
 
 
 def main() -> int:
-    project_dir = Path(__file__).parent
-    app_path = project_dir / "app.py"
+    # Determine base path: if frozen by PyInstaller, files are extracted to sys._MEIPASS
+    if getattr(sys, "frozen", False):
+        base_path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
+    else:
+        base_path = Path(__file__).parent
+
+    app_path = base_path / "app.py"
     if not app_path.exists():
-        print("Error: app.py not found next to launcher.py")
+        print(f"Error: app.py not found at {app_path!s}")
         return 2
 
     cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true", "--server.port", "8501", "--server.address", "127.0.0.1"]
