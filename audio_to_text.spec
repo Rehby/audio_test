@@ -1,12 +1,22 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_metadata
+
 block_cipher = None
+
+# Collect package metadata so importlib.metadata.version() works at runtime
+datas = []
+try:
+    datas += collect_metadata('streamlit')
+except Exception:
+    # If collect_metadata fails at spec-eval time, fall back to an empty list
+    datas += []
 
 a = Analysis(
     ['app.py'],
     pathex=['.'],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=['transcriber', 'preload_models'],
     hookspath=[],
     runtime_hooks=[],
