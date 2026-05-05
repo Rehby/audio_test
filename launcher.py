@@ -53,7 +53,7 @@ def main() -> int:
 
         # Replace sys.argv similar to running `streamlit run app.py ...`
         sys_argv_backup = sys.argv[:]
-        sys.argv = ["streamlit", "run", str(app_path), "--server.headless", "true", "--server.port", str(port), "--server.address", host]
+        sys.argv = ["streamlit", "run", str(app_path), "--server.headless", "true"]
         try:
             rc = stcli.main()
             return rc or 0
@@ -61,7 +61,7 @@ def main() -> int:
             sys.argv = sys_argv_backup
     except Exception:
         # Fallback to subprocess if programmatic run fails
-        cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true", "--server.port", str(port), "--server.address", host]
+        cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true"]
 
         proc = subprocess.Popen(
             cmd,
