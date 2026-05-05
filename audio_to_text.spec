@@ -21,11 +21,11 @@ if collect_metadata is not None:
         datas += []
 
 a = Analysis(
-    ['app.py'],
+    ['launcher.py'],
     pathex=['.'],
     binaries=[],
     datas=datas,
-    hiddenimports=['transcriber', 'preload_models'],
+    hiddenimports=['transcriber', 'preload_models', 'streamlit'],
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
