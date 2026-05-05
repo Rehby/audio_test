@@ -12,6 +12,17 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install pyinstaller
 
+REM Optional dependencies: install langchain and friends if desired
+if "%INSTALL_OPTIONAL%"=="" (
+    set INSTALL_OPTIONAL=1
+)
+if "%INSTALL_OPTIONAL%"=="1" (
+    echo Installing optional dependencies: langchain chromadb tiktoken openai
+    pip install langchain chromadb tiktoken openai
+) else (
+    echo Skipping optional dependencies (set INSTALL_OPTIONAL=1 to enable)
+)
+
 REM 2) (Опционально) предзагрузить модели в каталог models
 if exist preload_models.py (
     python preload_models.py

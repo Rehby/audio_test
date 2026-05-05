@@ -85,6 +85,24 @@ build_windows.bat
 
 Если после сборки нет файла `dist\AudioToText.exe`, значит ошибка произошла до завершения PyInstaller. В этом случае нужен полный текст консоли, особенно строки с ошибкой из этапа `python preload_models.py` или `python -m PyInstaller --clean --noconfirm audio_to_text.spec`.
 
+#### Troubleshooting (Windows)
+
+- Если сборка падает с ошибкой вида `ModuleNotFoundError: No module named 'langchain'`, то установите опциональные зависимости и повторите сборку. По умолчанию `build_windows.bat` устанавливает набор опциональных пакетов (`langchain`, `chromadb`, `tiktoken`, `openai`).
+- Чтобы отключить автоматическую установку опциональных пакетов, запустите скрипт так:
+
+```bat
+set INSTALL_OPTIONAL=0
+build_windows.bat
+```
+
+- Если вы хотите включить установку (поведение по умолчанию):
+
+```bat
+build_windows.bat
+```
+
+- При возникновении проблем приложите весь вывод консоли (особенно ошибки PyInstaller и строки из `preload_models.py`).
+
 Скрипт:
 
 - ставит зависимости для сборки;

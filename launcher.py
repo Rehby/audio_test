@@ -3,6 +3,7 @@ import sys
 import time
 import webbrowser
 import socket
+import threading
 from pathlib import Path
 
 
@@ -17,6 +18,15 @@ def wait_for_port(host: str, port: int, timeout: int = 30) -> bool:
     return False
 
 
+def stream_reader(pipe, buffer: list):
+    try:
+        for line in iter(pipe.readline, ""):
+            print(line, end="")
+            buffer.append(line)
+    finally:
+        pipe.close()
+
+
 def main() -> int:
     project_dir = Path(__file__).parent
     app_path = project_dir / "app.py"
@@ -24,14 +34,26 @@ def main() -> int:
         print("Error: app.py not found next to launcher.py")
         return 2
 
-    cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true"]
+    cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true", "--server.port", "8501", "--server.address", "127.0.0.1"]
 
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+
+    output_buffer: list[str] = []
+    if proc.stdout:
+        t = threading.Thread(target=stream_reader, args=(proc.stdout, output_buffer), daemon=True)
+        t.start()
 
     host = "127.0.0.1"
     port = 8501
 
-    if wait_for_port(host, port, timeout=60):
+    started = wait_for_port(host, port, timeout=60)
+    if started:
         url = f"http://{host}:{port}"
         try:
             webbrowser.open(url)
@@ -40,10 +62,9 @@ def main() -> int:
         proc.wait()
         return proc.returncode or 0
 
-    print("Streamlit did not start within timeout. Showing subprocess output:")
-    if proc.stdout:
-        for line in proc.stdout:
-            print(line, end="")
+    print("Streamlit did not start within timeout. Recent subprocess output:")
+    for line in output_buffer[-200:]:
+        print(line, end="")
     proc.wait()
     return proc.returncode or 1
 
