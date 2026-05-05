@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import os
+import socket
 import sys
 import threading
+import time
 import webbrowser
 from pathlib import Path
 
@@ -22,6 +24,17 @@ def open_browser(url: str) -> None:
         pass
 
 
+def wait_for_server(host: str, port: int, timeout_seconds: float = 30.0) -> bool:
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=1.0):
+                return True
+        except OSError:
+            time.sleep(0.5)
+    return False
+
+
 def main() -> None:
     server_address = "127.0.0.1"
     server_port = "8501"
@@ -32,8 +45,14 @@ def main() -> None:
     os.environ.setdefault("STREAMLIT_SERVER_ADDRESS", server_address)
     os.environ.setdefault("STREAMLIT_SERVER_PORT", server_port)
 
-    print(f"Opening {server_url}")
-    threading.Timer(2.0, open_browser, args=(server_url,)).start()
+    def open_when_ready() -> None:
+        if wait_for_server(server_address, int(server_port)):
+            print(f"Opening {server_url}")
+            open_browser(server_url)
+        else:
+            print(f"Server did not start in time. Open {server_url} manually.")
+
+    threading.Thread(target=open_when_ready, daemon=True).start()
 
     app_path = get_base_dir() / "app.py"
     bootstrap.run(str(app_path), False, [], {})
