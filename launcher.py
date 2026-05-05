@@ -53,7 +53,22 @@ def main() -> int:
 
         # Replace sys.argv similar to running `streamlit run app.py ...`
         sys_argv_backup = sys.argv[:]
-        sys.argv = ["streamlit", "run", str(app_path), "--server.headless", "true"]
+        # Disable CORS and XSRF protection to avoid cross-origin restrictions when desired
+        sys.argv = [
+            "streamlit",
+            "run",
+            str(app_path),
+            "--server.headless",
+            "true",
+            "--server.port",
+            str(port),
+            "--server.address",
+            host,
+            "--server.enableCORS",
+            "false",
+            "--server.enableXsrfProtection",
+            "false",
+        ]
         try:
             rc = stcli.main()
             return rc or 0
@@ -61,7 +76,23 @@ def main() -> int:
             sys.argv = sys_argv_backup
     except Exception:
         # Fallback to subprocess if programmatic run fails
-        cmd = [sys.executable, "-m", "streamlit", "run", str(app_path), "--server.headless", "true"]
+        cmd = [
+            sys.executable,
+            "-m",
+            "streamlit",
+            "run",
+            str(app_path),
+            "--server.headless",
+            "true",
+            "--server.port",
+            str(port),
+            "--server.address",
+            host,
+            "--server.enableCORS",
+            "false",
+            "--server.enableXsrfProtection",
+            "false",
+        ]
 
         proc = subprocess.Popen(
             cmd,
