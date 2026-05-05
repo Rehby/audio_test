@@ -40,8 +40,8 @@ def main() -> int:
         return 2
 
     # Prefer running Streamlit programmatically when possible (works inside a PyInstaller bundle)
-    host = "127.0.0.1"
-    port = 8501
+    host = "127.0.0.1"ы
+    port = 3000
 
     try:
         # Try the newer import path first
@@ -102,7 +102,7 @@ def main() -> int:
         # Give Streamlit more time to start (large models or cold-starts can be slow)
         started = wait_for_port(host, port, timeout=120)
         if started:
-            url = f"http://{host}:{port}"
+            url = f"http://{host}:3000"
             try:
                 webbrowser.open(url)
             except Exception:
