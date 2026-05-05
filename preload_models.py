@@ -6,7 +6,7 @@ from huggingface_hub import snapshot_download
 
 
 MODELS_DIR = Path(__file__).resolve().parent / "models"
-MODEL_OPTIONS = ("tiny", "base", "small", "medium")
+MODEL_OPTIONS = ("tiny", "base", "small")
 
 
 def main() -> None:

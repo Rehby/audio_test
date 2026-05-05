@@ -8,7 +8,7 @@ from pathlib import Path
 from faster_whisper import WhisperModel
 
 
-MODEL_OPTIONS = ("tiny", "base", "small", "medium")
+MODEL_OPTIONS = ("tiny", "base", "small")
 
 
 class TranscriptionError(Exception):
