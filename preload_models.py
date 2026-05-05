@@ -4,10 +4,9 @@ from pathlib import Path
 
 from huggingface_hub import snapshot_download
 
-from transcriber import MODEL_OPTIONS
-
 
 MODELS_DIR = Path(__file__).resolve().parent / "models"
+MODEL_OPTIONS = ("tiny", "base", "small", "medium")
 
 
 def main() -> None:

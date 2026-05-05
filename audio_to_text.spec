@@ -16,7 +16,7 @@ if models_dir.exists():
     datas.append((str(models_dir), "models"))
 
 datas += copy_metadata("streamlit")
-datas += copy_metadata("faster_whisper")
+datas += copy_metadata("faster-whisper")
 datas += copy_metadata("ctranslate2")
 datas += copy_metadata("tokenizers")
 
@@ -51,7 +51,7 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     runtime_tmpdir=None,
     console=True,

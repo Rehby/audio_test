@@ -56,6 +56,10 @@ python -m venv .venv
 build_windows.bat
 ```
 
+Если команда `pyinstaller` не находится, это уже учтено: сборка запускается через `python -m PyInstaller`, поэтому отдельная запись в `PATH` не нужна.
+
+Если после сборки нет файла `dist\AudioToText.exe`, значит ошибка произошла до завершения PyInstaller. В этом случае нужен полный текст консоли, особенно строки с ошибкой из этапа `python preload_models.py` или `python -m PyInstaller --clean --noconfirm audio_to_text.spec`.
+
 Скрипт:
 
 - ставит зависимости для сборки;
@@ -63,6 +67,31 @@ build_windows.bat
 - упаковывает приложение в один файл `dist\AudioToText.exe`.
 
 Файл получится большим, потому что модели включаются внутрь сборки.
+
+## GitHub Actions
+
+Если Windows-машины нет, можно собирать `.exe` в GitHub Actions.
+
+Workflow уже добавлен в [build-exe.yml](.github/workflows/build-exe.yml). Он:
+
+- запускается вручную через `Run workflow`;
+- может запускаться автоматически при пуше в ветку `main`;
+- может запускаться по тегу вида `v1.0.0`;
+- может публиковать `.exe` прямо в GitHub Release;
+- собирает `AudioToText.exe` на `windows-latest`;
+- загружает готовый файл как artifact `AudioToText-windows-exe`.
+
+Чтобы забрать `.exe`:
+
+1. Откройте вкладку Actions в GitHub.
+2. Запустите workflow `Build Windows EXE` или дождитесь запуска от push в `main`.
+3. Откройте завершённый run и скачайте artifact `AudioToText-windows-exe`.
+
+Чтобы `.exe` попадал сразу в Release:
+
+1. Создайте тег вида `v1.0.0` и отправьте его в GitHub, либо опубликуйте Release в интерфейсе GitHub.
+2. Workflow соберёт `AudioToText.exe` на Windows.
+3. Готовый файл будет приложен к соответствующему GitHub Release.
 
 ## Замечания
 
