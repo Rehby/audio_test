@@ -8,3 +8,4 @@ build/
 dist/
 models/
 *.exe
+.cache/
