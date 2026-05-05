@@ -40,7 +40,7 @@ def main() -> int:
         return 2
 
     # Prefer running Streamlit programmatically when possible (works inside a PyInstaller bundle)
-    host = "127.0.0.1"ы
+    host = "127.0.0.1"
     port = 3000
 
     try:
